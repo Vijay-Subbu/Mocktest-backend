@@ -20,7 +20,7 @@ const mockTests = [
   {
     id: 2,
     name: 'NEET Mock Test 2',
-    subjects: ['Physics', 'Chemistry', 'Biology'],
+    subjects: ['Botany', 'Zoology', 'chemistry'],
     duration: '3 hours',
     questions: [
       { id: 1, question: 'Question 1', options: ['Option A', 'Option B', 'Option C', 'Option D'], correctAnswer: 'Option C' },
