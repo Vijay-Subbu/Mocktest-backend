@@ -4,8 +4,8 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
-
 const app = express();
+const mockTests = require('./Data');
 
 // Middleware
 app.use(express.json());
@@ -16,49 +16,25 @@ app.use(
   })
 );
 
-// Sample data for mock tests
-const mockTests = [
-  {
-    id: 1,
-    name: "NEET Mock Test 1",
-    subjects: ["Physics", "Chemistry", "Biology"],
-    duration: "3 hours",
-    questions: [
-      {
-        id: 1,
-        question: "Question 1",
-        options: ["Option A", "Option B", "Option C", "Option D"],
-        correctAnswer: "Option A",
-      },
-      {
-        id: 2,
-        question: "Question 2",
-        options: ["Option A", "Option B", "Option C", "Option D"],
-        correctAnswer: "Option B",
-      },
-    ],
-  },
-  {
-    id: 2,
-    name: "NEET Mock Test 2",
-    subjects: ["Botany", "Zoology", "chemistry"],
-    duration: "3 hours",
-    questions: [
-      {
-        id: 1,
-        question: "Question 1",
-        options: ["Option A", "Option B", "Option C", "Option D"],
-        correctAnswer: "Option C",
-      },
-      {
-        id: 2,
-        question: "Question 2",
-        options: ["Option A", "Option B", "Option C", "Option D"],
-        correctAnswer: "Option D",
-      },
-    ],
-  },
-];
+// Route to get all questions
+app.get('/api/questions', (req, res) => {
+  const allQuestions = mockTests.map(test => test.questions).flat();
+  res.json(allQuestions);
+});
+
+// Route to get a specific question by test ID and question ID
+app.get('/api/:testId/questions/:questionId', (req, res) => {
+  const { testId, questionId } = req.params;
+  const test = mockTests.find(test => test.id === parseInt(testId));
+  if (!test) {
+    return res.status(404).json({ message: 'Test not found' });
+  }
+  const question = test.questions.find(question => question.id === parseInt(questionId));
+  if (!question) {
+    return res.status(404).json({ message: 'Question not found' });
+  }
+  res.json(question);
+});
 
 // Connect to MongoDB
 const MONGODB_URI = `mongodb+srv://${process.env.MONGO_USERNAME}:${process.env.MONGO_PW}@cluster0-mocktest.k9orccc.mongodb.net/?retryWrites=true&w=majority`;
@@ -102,22 +78,6 @@ app.post("/api/login", async (req, res) => {
 
   const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
   res.header("Authorization", token).send(token);
-});
-
-// Get all mock tests
-app.get("/api/mock-tests", (req, res) => {
-  res.json(mockTests);
-});
-
-// Get a specific mock test by ID
-app.get("/api/mock-test/:id", (req, res) => {
-  const id = parseInt(req.params.id);
-  const mockTest = mockTests.find((test) => test.id === id);
-  if (mockTest) {
-    res.json(mockTest);
-  } else {
-    res.status(404).json({ message: "Mock test not found" });
-  }
 });
 
 // Start the server
